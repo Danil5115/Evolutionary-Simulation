@@ -15,7 +15,7 @@ The Business Traveler Problem involves finding the shortest route to visit a set
 3. Run the `genetic_algorithm` function with the distance matrix, population size, and number of generations to find the best route.
 
 ## Mountain Climbing Problem
-The Mountain Climbing Problem is about finding the optimal combination of items to maximize a backpack's value without exceeding its capacity. The code for this problem can be found in the mountain_climbing.py file.
+The Mountain Climbing Problem is about finding the optimal combination of items to maximize a backpack's value without exceeding its capacity. The code for this problem can be found in the `mountain_climbing.py` file.
 
 ### Usage:
 Define the backpack capacity (M) and the list of items with their weights and costs in the a variable.
