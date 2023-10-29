@@ -1,85 +1,85 @@
 import matplotlib.pyplot as plt
 import random
 
-# Generation of the initial population. Генерация начальной популяции
-def generate_population(population_size, cities): #1 размер популяции, количество хромосом в популяции 2 список городов(индексов) которые нужно посетить
-  population = []  # здесь хранятся сгенерированные хромосомы, маршрут для посещения
+# Generation of the initial population.
+def generate_population(population_size, cities): #1 population size, number of chromosomes in the population 2 list of cities (indexes) to visit
+  population = []  # generated chromosomes are stored here, route to visit
   for i in range(population_size):
       chromosome = cities.copy() 
-      random.shuffle(chromosome) #создаётся копия списка городов(индексов) которая затем перемешивается, одна хромосома
+      random.shuffle(chromosome) #a copy of the list of cities (indexes) is created which is then mixed, one chromosome
       population.append(chromosome)
   return population
 
-# Fitness calculation (route length). Вычисление приспособленности (длины маршрута)
-def fitness(chromosome, distances): #хромосома=маршрут, distances матрица расстояний
+# Fitness calculation (route length). 
+def fitness(chromosome, distances): #chromosome=route, distances distance matrix
   total_distance = 0
-  for i in range(len(chromosome)-1): #находим расстояние между городами(парой) кроме первого и последнего
+  for i in range(len(chromosome)-1): #find the distance between cities (pair) except the first and last
     city1 = chromosome[i]
     city2 = chromosome[i+1]
     total_distance += distances[city1][city2]
-  total_distance += distances[chromosome[-1]][chromosome[0]] #расстояние из последнего в первый, замыкание цикла
+  total_distance += distances[chromosome[-1]][chromosome[0]] #distance from last to first, closing the loop
   return total_distance
 
-# Performing a crossover operation. Выполнение операции скрещивания
+# Performing a crossover operation.
 def crossover(parent1, parent2):
-  child = parent1.copy() # создаётся ребенок
+  child = parent1.copy() # a child is created
   start_index = random.randint(0, len(parent1)-1)
-  end_index = random.randint(start_index, len(parent1)) #берётся участок над которым будет происходить обмен генами
+  end_index = random.randint(start_index, len(parent1)) #take the area over which genes will be exchanged
   for i in range(start_index, end_index):
-    if parent2[i] not in child[start_index:end_index]: #проверка присутствует ли ген пар2 на участке маршрута(st-end), если он отсутсвует, то будет добавлен на соответствующее место
-      index = child.index(parent2[i]) #находим индекс гена parent2  в маршруте ребёнка
-      child[i], child[index] = child[index], child[i] # гены в данном участке меняются как у parent2, с перемещением внутри, чтобы сохранить маршрут
+    if parent2[i] not in child[start_index:end_index]: #check whether the par2 gene is present on the route section (st-end), if it is missing, it will be added to the appropriate place
+      index = child.index(parent2[i]) #find the parent2 gene index in the child’s route
+      child[i], child[index] = child[index], child[i] # genes in this region change like in parent2, with movement inside to save the route
   return child
 
-# Performing a mutation operation. Выполнение операции мутации
-def mutation(chromosome):    #выбираются 2 случайных гена и меняются местами, дабы не застревали в локальном оптимуме
-  index1 = random.randint(0, len(chromosome)-1)  #len()-1, так как так как длина генома=городам, а индексы начинаются с 0
+# Performing a mutation operation. 
+def mutation(chromosome):    #2 random genes are selected and swapped so as not to get stuck in the local optimum
+  index1 = random.randint(0, len(chromosome)-1)  #len()-1, since genome length = cities, and indices start from 0
   index2 = random.randint(0, len(chromosome)-1)
   chromosome[index1], chromosome[index2] = chromosome[index2], chromosome[index1]
   return chromosome
 
-# Execution of a genetic algorithm with a record of the history of evolution. Выполнение генетического алгоритма с записью истории эволюции
+# Execution of a genetic algorithm with a record of the history of evolution.
 def genetic_algorithm(distances, population_size, generations):
-  # Generation of the initial population. Генерация начальной популяции
-  cities = list(range(len(distances))) #создаётся лист индексов, городов от 0 до последнего
+  # Generation of the initial population. 
+  cities = list(range(len(distances))) 
   population = generate_population(population_size, cities)
 
-  # Recording the history of evolution. Запись истории эволюции
-  history = []  #сюда записывается лучший результат за поколение, каждого
-  best_fitness = float('inf') #отслеживание наилучшего результата, бесконечность чтобы гарантировать, что первое поколение будет записано как лучшее
+  # Recording the history of evolution. 
+  history = []  #The best result for a generation is recorded here, everyone
+  best_fitness = float('inf') #best track, infinity to ensure that the first generation is recorded as the best
 
-  # Performing crossover, mutation and selection operations. Выполнение операций скрещивания, мутации и отбора
+  # Performing crossover, mutation and selection operations. 
   for i in range(generations):
-    population = sorted(population, key=lambda x: fitness(x, distances)) #сортировка маршрутов по возрастанию от лучшего к худшему по фитнесс функции
-    fitness_value = fitness(population[0], distances) #вычисляется для лучшего его фитнес
+    population = sorted(population, key=lambda x: fitness(x, distances)) #sorting routes in ascending order from best to worst by fitness function
+    fitness_value = fitness(population[0], distances) #calculated for the best of his fitness
 
-    # Recording best fitness and route. Запись лучшей приспособленности и маршрута
-    if fitness_value < best_fitness: # если текущее значение лучше предыдущего, то оно записывается как самое лучшее
+    # Recording best fitness and route.
+    if fitness_value < best_fitness: # if the current value is better than the previous one, then it is recorded as the best
         best_fitness = fitness_value
         best_route = population[0]
         
-        # Recording history. Запись истории
-    history.append([i, fitness_value]) #новый кортеж, номер поколения и его значение, чтобы отслеживать результат
+        # Recording history. 
+    history.append([i, fitness_value]) #new tuple, generation number and its value to track the result
 
-    parents = population[:int(population_size/2)] #берется лучшая половина(округленная в меньшую сторону) и сохраняет их
+    parents = population[:int(population_size/2)] #takes the best half (rounded down) and saves them
     offspring = [] #потомки
-    for j in range(int(population_size/2)): #создаётся вторая половина из детей, берутся 2 случайных родителя
+    for j in range(int(population_size/2)): #the second half is created from children, 2 random parents are taken
       parent1 = random.choice(parents)
       parent2 = random.choice(parents)
-      child = crossover(parent1, parent2) #скрещивание
-      if random.random() < 0.1: #шанс мутации ребёнка
+      child = crossover(parent1, parent2)
+      if random.random() < 0.1: 
         child = mutation(child)
-      offspring.append(child) # сохранение в список потомков
-    population = parents + offspring #создайтся новый список из родителей и потомков, сохранение лучших особей из прошлого и внесение разнообразия, дабы избежать преждевременной сходимости
+      offspring.append(child) 
+    population = parents + offspring #a new list will be created from parents and descendants, preserving the best individuals from the past and introducing diversity in order to avoid premature convergence
 
-    # Plotting the history of evolution. Построение графика истории эволюции
+    # Plotting the history of evolution. 
   plt.plot([h[0] for h in history], [h[1] for h in history])
-  plt.xlabel('Generation') # Поколение
-  plt.ylabel('Route cost') # Стоимость маршрута
-  plt.title('History of evolution') # История эволюции
+  plt.xlabel('Generation') 
+  plt.ylabel('Route cost') 
+  plt.title('History of evolution') 
   plt.show()
 
-  # Возврат лучшего маршрута
+  
   return best_route
 
 distances = [
